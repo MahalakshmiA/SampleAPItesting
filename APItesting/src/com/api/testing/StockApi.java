@@ -43,11 +43,11 @@ public class StockApi {
 //			 Map<String, ArrayList<String>> allStocksMap = ReadStocks.getAllStocksMap();
 			 
 			
-			 String symbol = "AXISBANK.NS";
+			 String symbol = "ADANIPORTS.NS";
 //			 String symbol = "^NSEI";
 			//outputsize = full/compact
-//			 getHTFLevels(symbol,"monthly");
-			 getDailyLevels(symbol);			
+			 getHTFLevels(symbol,"monthly");
+//			 getDailyLevels(symbol);			
 
 			  } catch (Exception e) {
 
@@ -107,7 +107,7 @@ public class StockApi {
 		System.out.println(timeFrame + " Support Resistance levels \n");
 		Map map1 = (Map) map.get(timeSeriesKey);
 		String strDate = "";
-		String startDate = "2019-06-05";
+		String startDate = "2019-06-15";
 		int noOfdays = 250;
 		int i = 0;
 		Double supportHigh = 0.0;
