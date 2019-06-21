@@ -1,6 +1,8 @@
 package com.api.testing;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -29,56 +31,85 @@ public class NiftyStocksDailyLevels2 {
 	private static boolean markLevel = false;
 	private static boolean isLegOutCandle = false;
 	private static Double quote = 0.0;
+	private static String symbolGlobal = "";
+	private static StringBuffer levelsList = new StringBuffer();
+	
+	
+	public static void main(String[] args) throws Exception {
+		long starttimefinal = System.currentTimeMillis();
+		long endtimefinal;
+		System.out.println("Start time " +  new Date(starttimefinal));	
+		int i = 0;
+		long starttime = System.currentTimeMillis();
+		long endtime;
+		long timetaken;
+		String fnName = "TIME_SERIES_MONTHLY";
+		try {
+			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
+//			getQuote(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+				
+				quote = 0.0;
+				/*i++;
+				endtime = System.currentTimeMillis();
+				timetaken = endtime - starttime;
+				if (timetaken < 60000 && (i % 5 == 0)) {
+					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
+					Thread.sleep(61000-timetaken);
+					starttime = System.currentTimeMillis();
+				}
+				*/
+				symbolGlobal = symbol;				
+				getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+//			getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
+				System.out.println(symbol+" | "  + quote);
+				i++;
+				endtime = System.currentTimeMillis();
+				timetaken = endtime - starttime;
+				if (timetaken < 60000 && (i % 5 == 0)) {
+					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
+					Thread.sleep(61000-timetaken);
+					starttime = System.currentTimeMillis();
+				}
 
-	public static void main(String[] args) {
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			}
+		
+		endtimefinal = System.currentTimeMillis();
+		System.out.println("End time " + new Date(endtimefinal) );
+		System.out.println("time taken " + (endtimefinal - starttimefinal));
+	}
+
+	/*public static void main(String[] args) {
 
 		try {
-			long starttimefinal = System.currentTimeMillis();
-			long endtimefinal;
-			System.out.println("Start time "+ new Date (starttimefinal));
-			long starttime = System.currentTimeMillis();
-		       long endtime;
-		       long timetaken;
 			String fnName = "TIME_SERIES_MONTHLY";
 			int i = 0;
+//			Thread.sleep(70000);
 			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
 				try {
-					/*
-					 * quote = 0.0; getQuote(symbol); System.out.println(symbol+" | " + quote); i++;
-					 * endtime = System.currentTimeMillis(); timetaken = endtime-starttime;
-					 * if((i%5==0)){ System.out.println("Time taken & Wait time ... "+ timetaken
-					 * +" & "+ (61000-timetaken)); if(timetaken<61000)
-					 * Thread.sleep(61000-timetaken); starttime = System.currentTimeMillis(); }
-					 */
-//					getDailyLevels(symbol);
-					System.out.println(symbol);
-			          getHTFLevels( symbol,  "monthly");
-					endtime = System.currentTimeMillis();
-			          timetaken = endtime-starttime;
-			          i++;
-			          if(i%5==0){
-			        	  System.out.println("Time taken & Wait time ... "+ timetaken +" & "+ (61000-timetaken));
-			        	  if(timetaken<61000)
-			        	  Thread.sleep(61000-timetaken);
-			        	  starttime = System.currentTimeMillis();
-			          }
-			          
-			         
-					/*
-					 * if(i%2 == 0) { Thread.sleep(61000); }
-					 */
-					/*Thread.sleep(1000);
-					
-					Thread.sleep(3000);*/
+					quote = 0.0;					
+					getQuote(symbol,"&apikey=J27JKP9HNK701478");	
+//					Thread.sleep(1000);
+					i++;
+					if(i%5 == 0) {
+					Thread.sleep(61000);
+					}	
+					System.out.println(symbol+" | "  + quote);
+					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+					i++;
+					if(i%5 == 0) {
+					Thread.sleep(61000);
+					}	
 					
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}
 			}
-			 endtimefinal = System.currentTimeMillis();
-	          System.out.println("End time "+ new Date (endtimefinal));
-	          System.out.println("time taken "+(endtimefinal-starttimefinal));
-			
 
 		} catch (Exception e) {
 
@@ -86,17 +117,24 @@ public class NiftyStocksDailyLevels2 {
 
 		}
 
-	}
+	}*/
 	
-	static void  getQuote(String symbol){
+	static void  getQuote(String symbol,String apiKey) throws Exception{
 //		Double quote = 0.0;
 		Double change = 0.0;
 		Double changePercent = 0.0;
 		String fnName = "GLOBAL_QUOTE";
-		String urlString = formURL(fnName, symbol);
+		String urlString = formURL(fnName, symbol, apiKey);
 		Map map = retriveAPIdata(urlString);	
-		Map map2 = (Map)map.get("Global Quote");
-		quote = Double.parseDouble(map2.get("05. price").toString());
+		if(map.containsKey("Note")){
+			System.out.println("Note : " +map.get("Note"));
+		}else {
+			Map map2 = (Map)map.get("Global Quote");
+			if(null != map2) {
+			quote = Double.parseDouble(map2.get("05. price").toString());
+			}
+		}	
+		
 		map.clear();
 		//TODO solve issue with negative value and percentage
 //		change = Double.parseDouble(map2.get("09. change").toString()); 		
@@ -106,7 +144,7 @@ public class NiftyStocksDailyLevels2 {
 	}
 	
 
-	static void getHTFLevels(String symbol, String timeFrame) {
+	static void getHTFLevels(String symbol, String timeFrame,String apiKey) throws Exception{
 		String fnName = "TIME_SERIES_MONTHLY";
 		if ("monthly".equalsIgnoreCase(timeFrame)) {
 			// fnName = "TIME_SERIES_MONTHLY";
@@ -116,7 +154,7 @@ public class NiftyStocksDailyLevels2 {
 		} else if ("daily".equalsIgnoreCase(timeFrame)) {
 			fnName = "TIME_SERIES_DAILY";
 		}
-		String urlString = formURL(fnName, symbol);
+		String urlString = formURL(fnName, symbol,apiKey);
 		Map map = retriveAPIdata(urlString);
 		listSupportResistance(map, timeFrame, "high");
 
@@ -126,23 +164,23 @@ public class NiftyStocksDailyLevels2 {
 
 	}
 
-	static void getDailyLevels(String symbol) {
+	static void getDailyLevels(String symbol,String apiKey) throws Exception{
 		String fnName = "TIME_SERIES_DAILY";
-		String urlString = formURL(fnName, symbol);
+		String urlString = formURL(fnName, symbol, apiKey);
 		Map map = retriveAPIdata(urlString);
 		listSupportResistance(map, "daily", "low");
 	}
 
-	static String formURL(String fnName, String symbol) {
+	static String formURL(String fnName, String symbol, String apiKey) {
 		String urlBase = "https://www.alphavantage.co/query?function=";
 		String outputsize = "&outputsize=full";
-		String apiKey = "&apikey=F4ASHUF1BONNF5AQ";
+//		String apiKey = "&apikey=F4ASHUF1BONNF5AQ";
 		// symbol = "NSE:ASHOKLEY";
 		String urlString = urlBase + fnName + "&symbol=" + symbol + outputsize + apiKey;
 		return urlString;
 	}
 
-	static void listSupportResistance(Map map, String timeSeries, String timeFrame) {
+	static void listSupportResistance(Map map, String timeSeries, String timeFrame) throws Exception{
 		/*
 		 * 1. Identify Candle type 2. check leg-in or leg-out candle a. If gap found
 		 * check gap type and decide leg type 3. Check if level(basing) found 4. Check
@@ -157,9 +195,14 @@ public class NiftyStocksDailyLevels2 {
 		}
 //		System.out.println(timeFrame + " Support Resistance levels \n");
 		Map map1 = new HashMap<String, HashMap>(); 
-		map1= 	(Map) map.get(timeSeriesKey);
+		if(map.containsKey("Note")){
+			System.out.println("Note : " +map.get("Note"));
+		}else {
+			map1= 	(Map) map.get(timeSeriesKey);			
+		}
+		
 		String strDate = "";
-		String startDate = "2019-06-14";
+		String startDate = "2019-06-19";
 		int noOfdays = 100;
 		int i = 0;
 		Double supportHigh = 0.0;
@@ -203,16 +246,15 @@ public class NiftyStocksDailyLevels2 {
 			}
 
 			// System.out.println("\n" + strDate);
-			if (map1.containsKey(strDate)) {
+			if (map1.containsKey(strDate)) {				
 				Map map2 = (Map) map1.get(strDate);
-				if(null != map2) {				
-				
+				if(null != map2) {
 				candleHigh = Double.parseDouble(map2.get("2. high").toString());
 				candlelow = Double.parseDouble(map2.get("3. low").toString());
 
 				candleOpen = Double.parseDouble(map2.get("1. open").toString());
 				candleClose = Double.parseDouble(map2.get("4. close").toString());
-
+				
 				// Avoid candle with all 0 data, consider it as data issue and skip that candle
 				if (candleHigh == 0.0 || candlelow == 0.0 || candleOpen == 0.0 || candleClose == 0.0) {
 					i++;
@@ -223,6 +265,7 @@ public class NiftyStocksDailyLevels2 {
 					quote = candleClose;
 				}
 				}
+					
 				// TODO Move gap logic to new method
 				if (!"high".equalsIgnoreCase(timeFrame) && lastCandlelow != 0.0 && lastCandleHigh != 0.0) {
 					if (candleClose > lastCandlelow && candleClose > lastCandleHigh) {
@@ -348,6 +391,7 @@ public class NiftyStocksDailyLevels2 {
 							if (((quote - supportHigh) * 100 / quote) < 20) {
 								System.out.println(
 										" Support level " + strDate + " from  " + supportHigh + " to " + supportLow);
+								levelsList.append(symbolGlobal+"|Support|"+supportHigh+"|"+String.format("%.2f",((quote - supportHigh) * 100 / quote))+"\n");
 								isSuppAvailble = true;
 							}
 						}
@@ -359,6 +403,7 @@ public class NiftyStocksDailyLevels2 {
 							if (((resistLow - quote) * 100 / quote) < 20) {
 								System.out.println(
 										" Resistance level " + strDate + " from  " + resistLow + " to " + resistHigh);
+								levelsList.append(symbolGlobal+"|Resistance|"+resistLow+"|"+String.format("%.2f",((resistLow - quote) * 100 / quote))+"\n");
 								isResistAvailble = true;
 							}
 						}
@@ -402,10 +447,10 @@ public class NiftyStocksDailyLevels2 {
 			i++;
 		}
 
-		if (!isSuppAvailble)
+		/*if (!isSuppAvailble)
 			System.out.println("No Support level ");
 		if (!isResistAvailble)
-			System.out.println("No Resistance level ");
+			System.out.println("No Resistance level ");*/
 
 	}
 
@@ -433,7 +478,8 @@ public class NiftyStocksDailyLevels2 {
 			conn.setRequestProperty("Accept", "application/json");
 
 			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+				System.out.println("Failed : HTTP error code : "+ conn.getResponseCode());
+//				throw new Exception("Failed : HTTP error code : " + conn.getResponseCode());
 			}
 
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
@@ -467,7 +513,7 @@ public class NiftyStocksDailyLevels2 {
 		 * noOfLG = noOfLG+countLG; noOfLR = noOfLR+countLR;
 		 */
 		boolean legInCandle = false;
-		isLegOutCandle = false;
+//		isLegOutCandle = false;
 		if (supportGap || resistGap) {
 			isLegOutCandle = true;
 			if (supportLevel || resistLevel) {
@@ -522,10 +568,10 @@ public class NiftyStocksDailyLevels2 {
 			markLevel = false;
 
 			// gap is considered as 2 large green candles
-			if ((noOfLG >= 2 || supportGap || ("high".equalsIgnoreCase(timeFrame) && noOfLG >= 1)) && noOfSL < 6)
+			if ((noOfLG >= 2 || supportGap || ("high".equalsIgnoreCase(timeFrame) && noOfLG >= 1)) && noOfSL < 6 && isLegOutCandle)
 				supportLevel = true;
 			// gap is considered as 2 large red candles
-			else if ((noOfLR >= 2 || resistGap || ("high".equalsIgnoreCase(timeFrame) && noOfLR >= 1)) && noOfSL < 6)
+			else if ((noOfLR >= 2 || resistGap || ("high".equalsIgnoreCase(timeFrame) && noOfLR >= 1)) && noOfSL < 6 && isLegOutCandle)
 				resistLevel = true;
 			else {
 				noOfLG = 0;
@@ -591,5 +637,12 @@ public class NiftyStocksDailyLevels2 {
 
 		return candleType;
 	}
+	public static void writeToFile(String pFilename, StringBuffer pData) throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(pFilename));
+        out.write(pData.toString());
+        out.flush();
+        out.close();
+    }
+	
 
 }
