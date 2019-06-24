@@ -81,6 +81,7 @@ public class NiftyStocksDailyLevels2 {
 			e.printStackTrace();
 		}finally{
 			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
