@@ -49,6 +49,10 @@ public class NiftyStocksDailyLevels2 {
 //			getQuote(symbol,"&apikey=F4ASHUF1BONNF5AQ");
 				
 				quote = 0.0;
+				supportLevel = false;
+				isLegOutCandle = false;
+				resistLevel = false;
+				markLevel = false;
 				/*i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
@@ -202,7 +206,7 @@ public class NiftyStocksDailyLevels2 {
 		}
 		
 		String strDate = "";
-		String startDate = "2019-06-19";
+		String startDate = "2019-06-25";
 		int noOfdays = 100;
 		int i = 0;
 		Double supportHigh = 0.0;
@@ -410,6 +414,7 @@ public class NiftyStocksDailyLevels2 {
 					}
 					supportLevel = false;
 					resistLevel = false;
+					isLegOutCandle = false;
 
 					/*
 					 * if(isSuppAvailble && isResistAvailble) break;
@@ -537,8 +542,7 @@ public class NiftyStocksDailyLevels2 {
 				noOfLG++;
 			}
 
-			// if ((noOfLG >= 2 || supportGap || ("high".equalsIgnoreCase(timeFrame) &&
-			// noOfLG >= 1)))
+			if ((noOfLG >= 2 || supportGap || ("high".equalsIgnoreCase(timeFrame) &&  noOfLG >= 1)))
 			isLegOutCandle = true;
 
 		} else if ("LR".equalsIgnoreCase(currCandle)) {
@@ -553,8 +557,7 @@ public class NiftyStocksDailyLevels2 {
 				noOfLR++;
 			}
 
-			// if ((noOfLR >= 2 || resistGap || ("high".equalsIgnoreCase(timeFrame) &&
-			// noOfLR >= 1)))
+			 if ((noOfLR >= 2 || resistGap || ("high".equalsIgnoreCase(timeFrame) && noOfLR >= 1)))
 			isLegOutCandle = true;
 
 		} else if ("SL".equalsIgnoreCase(currCandle)) {
