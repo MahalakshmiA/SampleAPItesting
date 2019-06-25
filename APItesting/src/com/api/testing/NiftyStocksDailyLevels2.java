@@ -45,7 +45,7 @@ public class NiftyStocksDailyLevels2 {
 		long timetaken;
 		String fnName = "TIME_SERIES_MONTHLY";
 		try {
-			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
+			for (String symbol : ReadStocks.getIndexStocksList("MegaCapStocks")) {
 //			getQuote(symbol,"&apikey=F4ASHUF1BONNF5AQ");
 				
 				quote = 0.0;
@@ -63,9 +63,13 @@ public class NiftyStocksDailyLevels2 {
 				}
 				*/
 				symbolGlobal = symbol;				
-				getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+				try {
+					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+				} catch (Exception e) {					
+					e.printStackTrace();
+				}
 //			getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
-				System.out.println(symbol+" | "  + quote);
+//				System.out.println(symbolGlobal+" | "  + quote);
 				i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
@@ -80,8 +84,8 @@ public class NiftyStocksDailyLevels2 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
-			//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
@@ -202,13 +206,16 @@ public class NiftyStocksDailyLevels2 {
 		Map map1 = new HashMap<String, HashMap>(); 
 		if(map.containsKey("Note")){
 			System.out.println("Note : " +map.get("Note"));
+		}else if(map.containsKey("Error Message")) {
+			System.out.println("API Error Message : " +map.get("Error Message"));			
+			throw new Exception();
 		}else {
 			map1= 	(Map) map.get(timeSeriesKey);			
 		}
 		
 		String strDate = "";
 		String startDate = "2019-06-25";
-		int noOfdays = 100;
+		int noOfdays = 200;
 		int i = 0;
 		Double supportHigh = 0.0;
 		Double supportLow = 0.0;
@@ -268,6 +275,10 @@ public class NiftyStocksDailyLevels2 {
 				currCandle = getCandleType(map2);
 				if(quote == 0.0 && candleClose != 0.0) {
 					quote = candleClose;
+					System.out.println(symbolGlobal+" | "  + quote);
+				}
+				if (Math.abs(((candleClose - quote) * 100 / quote)) > 10) {
+					break;
 				}
 				}
 					
