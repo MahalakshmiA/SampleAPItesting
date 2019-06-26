@@ -45,14 +45,9 @@ public class NiftyStocksDailyLevels2 {
 		long timetaken;
 		String fnName = "TIME_SERIES_MONTHLY";
 		try {
-			for (String symbol : ReadStocks.getIndexStocksList("MegaCapStocks")) {
+			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
 //			getQuote(symbol,"&apikey=F4ASHUF1BONNF5AQ");
-				
-				quote = 0.0;
-				supportLevel = false;
-				isLegOutCandle = false;
-				resistLevel = false;
-				markLevel = false;
+				resetGlobalVariables();				
 				/*i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
@@ -65,10 +60,11 @@ public class NiftyStocksDailyLevels2 {
 				symbolGlobal = symbol;				
 				try {
 					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+//					getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}
-//			getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
+//				getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
 //				System.out.println(symbolGlobal+" | "  + quote);
 				i++;
 				endtime = System.currentTimeMillis();
@@ -84,8 +80,8 @@ public class NiftyStocksDailyLevels2 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
-			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
@@ -205,17 +201,21 @@ public class NiftyStocksDailyLevels2 {
 //		System.out.println(timeFrame + " Support Resistance levels \n");
 		Map map1 = new HashMap<String, HashMap>(); 
 		if(map.containsKey("Note")){
-			System.out.println("Note : " +map.get("Note"));
+			System.out.println(symbolGlobal+" : " +map.get("Note"));
 		}else if(map.containsKey("Error Message")) {
-			System.out.println("API Error Message : " +map.get("Error Message"));			
+			System.out.println(symbolGlobal+ " : " +map.get("Error Message"));			
 			throw new Exception();
 		}else {
 			map1= 	(Map) map.get(timeSeriesKey);			
 		}
 		
 		String strDate = "";
-		String startDate = "2019-06-25";
-		int noOfdays = 200;
+		Calendar cal1 = Calendar.getInstance();
+		cal1.add(Calendar.DATE, 1);
+		SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
+		String startDate = formatter1.format(cal1.getTime());
+//		String startDate = "2019-06-27";
+		int noOfdays = 1000;
 		int i = 0;
 		Double supportHigh = 0.0;
 		Double supportLow = 0.0;
@@ -275,9 +275,9 @@ public class NiftyStocksDailyLevels2 {
 				currCandle = getCandleType(map2);
 				if(quote == 0.0 && candleClose != 0.0) {
 					quote = candleClose;
-					System.out.println(symbolGlobal+" | "  + quote);
+//					System.out.println(symbolGlobal+" | "  + quote);
 				}
-				if (Math.abs(((candleClose - quote) * 100 / quote)) > 10) {
+				if (Math.abs(((candleClose - quote) * 100 / quote)) > 20) {
 					break;
 				}
 				}
@@ -396,6 +396,7 @@ public class NiftyStocksDailyLevels2 {
 				// if(markLevel || ((resistLevel || supportLevel ) && (supportGap ||
 				// resistGap))){
 				if (markLevel) {
+					String printLevel = "";
 					if (supportLevel) {
 						/*
 						 * System.out.println("Supp " + strDate + " Type " + currCandle + " suppLow " +
@@ -404,24 +405,28 @@ public class NiftyStocksDailyLevels2 {
 						if (supportHigh != 0.0 && supportLow != 0.0
 								&& (supportHigh < allTimeLow || allTimeLow == 0.0)) {
 							// Get levels which are within certain percentage from current price
-							if (((quote - supportHigh) * 100 / quote) < 20) {
-								System.out.println(
-										" Support level " + strDate + " from  " + supportHigh + " to " + supportLow);
-								levelsList.append(symbolGlobal+"|Support|"+supportHigh+"|"+String.format("%.2f",((quote - supportHigh) * 100 / quote))+"\n");
+//							if (((quote - supportHigh) * 100 / quote) < 20) {
+								printLevel = symbolGlobal+"|"+strDate+"|Support|"+supportHigh+"|"+supportLow+"|"+String.format("%.2f",((quote - supportHigh) * 100 / quote));
+								/*System.out.println(
+										" Support level " + strDate + " from  " + supportHigh + " to " + supportLow);*/
+								System.out.println(printLevel);
+								levelsList.append(printLevel+"\n");
 								isSuppAvailble = true;
-							}
+//							}
 						}
 					} else if (resistLevel) {
 						// System.out.println("Resist "+ strDate+" CandleType "+ currCandle +" resHigh "
 						// + resistHigh+" resLow " + resistLow +" High " + allTimeHigh);
 						if (resistHigh != 0.0 && resistLow != 0.0 && resistLow > allTimeHigh) {
 							// Get levels which are within certain percentage from current price
-							if (((resistLow - quote) * 100 / quote) < 20) {
-								System.out.println(
-										" Resistance level " + strDate + " from  " + resistLow + " to " + resistHigh);
-								levelsList.append(symbolGlobal+"|Resistance|"+resistLow+"|"+String.format("%.2f",((resistLow - quote) * 100 / quote))+"\n");
+//							if (((resistLow - quote) * 100 / quote) < 20) {
+								printLevel = symbolGlobal+"|"+strDate+"|Resistance|"+resistLow+"|"+resistHigh+"|"+String.format("%.2f",((resistLow - quote) * 100 / quote));
+								/*System.out.println(
+										" Resistance level " + strDate + " from  " + resistLow + " to " + resistHigh);*/
+								System.out.println(printLevel);
+								levelsList.append(printLevel+"\n");
 								isResistAvailble = true;
-							}
+//							}
 						}
 					}
 					supportLevel = false;
@@ -659,5 +664,18 @@ public class NiftyStocksDailyLevels2 {
         out.close();
     }
 	
-
+	static void  resetGlobalVariables() {
+		lastCandle = "";
+		currCandle = "";
+		noOfLG = 0;
+		noOfLR = 0;
+		noOfSL = 0;
+		quote = 0.0;
+		supportLevel = false;
+		isLegOutCandle = false;
+		resistLevel = false;
+		markLevel = false;
+		
+	}
+	
 }

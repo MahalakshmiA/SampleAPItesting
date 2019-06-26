@@ -30,8 +30,10 @@ import com.google.gson.JsonSyntaxException;
  */
 public class StockNotification {
 
-	public static String niftyStocksLevelsPath = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
+//	public static String niftyStocksLevelsPath = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
+	public static String niftyStocksLevelsPath = "D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt";
 	public static int notifyPercent = 3;
+	public static int inputLevelPercent = 5;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
 
 	/**
@@ -55,19 +57,20 @@ public class StockNotification {
 			System.out.println("\nNewShortListedStocks Size " + newShortListedStocks.size() + "\n");
 			
 			for (StockLevels levels : newShortListedStocks) {
-				System.out.println(levels.getStockName() + "|" + levels.getLevelType() + "|" + levels.getOldLevel()
-						+ "|" + levels.getOldLevelPercent() + "|" + levels.getNewLevel() + "|"
-						+ df2.format(levels.getNewLevelPercent()));
-				notificationLevels.append(levels.getStockName() + "|" + levels.getLevelType() + "|" + levels.getOldLevel()
-						+ "|" + levels.getOldLevelPercent() + "|" + levels.getNewLevel() + "|"
-						+ df2.format(levels.getNewLevelPercent())+"\n");
+				String notificationLevel = levels.getStockName() + "|" + levels.getDate()  + "|" +levels.getLevelType() +
+						"|" + levels.getOldLevel()+ "|" + levels.getOldLevelEnd()
+				+ "|" + levels.getOldLevelPercent() + "|" + levels.getNewLevel() + "|"
+				+ df2.format(levels.getNewLevelPercent());
+				System.out.println(notificationLevel);
+				notificationLevels.append(notificationLevel+"\n");
 
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
+			writeToFile("D:\\Soosai\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
+//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
 		}
 		long endtimefinal = System.currentTimeMillis();
 		System.out.println("\nEnd time " + new Date(endtimefinal));
@@ -201,10 +204,12 @@ public class StockNotification {
 				String[] splitLines = line.split("\\|");
 				StockLevels levels = new StockLevels();
 				levels.setStockName(splitLines[0]);
-				levels.setLevelType(splitLines[1]);
-				levels.setOldLevel(Double.valueOf(splitLines[2]));
-				levels.setOldLevelPercent(Double.valueOf(splitLines[3]));
-				if (levels.getOldLevelPercent() < notifyPercent) {
+				levels.setDate(splitLines[1]);
+				levels.setLevelType(splitLines[2]);
+				levels.setOldLevel(Double.valueOf(splitLines[3]));
+				levels.setOldLevelEnd((Double.valueOf(splitLines[4])));
+				levels.setOldLevelPercent(Double.valueOf(splitLines[5]));
+				if (levels.getOldLevelPercent() < inputLevelPercent) {
 					shortListedStocks.add(levels);
 				}
 			}

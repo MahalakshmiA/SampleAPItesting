@@ -8,6 +8,28 @@ package com.api.testing;
  *
  */
 public class StockLevels {
+	public String date;
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public Double getOldLevelEnd() {
+		return oldLevelEnd;
+	}
+
+	public void setOldLevelEnd(Double oldLevelEnd) {
+		this.oldLevelEnd = oldLevelEnd;
+	}
+
+
+
+	public Double oldLevelEnd;
+	
 	
 	/**
 	 * @return the stockName
