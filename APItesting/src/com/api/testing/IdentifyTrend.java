@@ -1,6 +1,8 @@
 package com.api.testing;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -46,4 +48,21 @@ public class IdentifyTrend {
 		String urlString = urlBase + fnName + "&symbol=" + symbol + interval+time_period+series_type + apiKey;
 		return urlString;
 	}
+	
+	public boolean isOrdered(ArrayList iterable) {
+		Iterator it = iterable.iterator();
+	    if (it.hasNext()) {
+	      String prev = (String) it.next();
+	      while (it.hasNext()) {
+	    	  String next = (String) it.next();
+	        if (!prev.equalsIgnoreCase(next)) {
+	          return false;
+	        }
+	        prev = next;
+	      }
+	    }
+	    return true;
+	  }
+	
+	
 }
