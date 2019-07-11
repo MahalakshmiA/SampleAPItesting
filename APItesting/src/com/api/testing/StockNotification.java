@@ -30,10 +30,14 @@ import com.google.gson.JsonSyntaxException;
  */
 public class StockNotification {
 
+//	public static String fileName = "TwoHourLevels";
+//	public static String fileName = "Hourlylevels";
+	public static String fileName = "niftyStocksLevels";
 //	public static String niftyStocksLevelsPath = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
-	public static String niftyStocksLevelsPath = "D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt";
+	public static String niftyStocksLevelsPath = "D:\\Soosai\\APItesting\\config\\file\\"+fileName+".txt";
+	public static String rejectedStocksListPath = "D:\\Soosai\\APItesting\\config\\file\\rejectedStocksList.txt";
 	public static int notifyPercent = 3;
-	public static int inputLevelPercent = 5;
+	public static int inputLevelPercent = 3;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
 
 	/**
@@ -69,7 +73,8 @@ public class StockNotification {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally {
-			writeToFile("D:\\Soosai\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
+			String notifyFile = "D:\\Soosai\\APItesting\\config\\file\\Notify"+fileName+".txt";
+			writeToFile(notifyFile,notificationLevels);
 //			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
 		}
 		long endtimefinal = System.currentTimeMillis();
@@ -83,6 +88,8 @@ public class StockNotification {
 		double quote;
 		ArrayList<StockLevels> shortListedStocks = getshortListedStocks();
 		ArrayList<StockLevels> newShortListedStocks = new ArrayList<StockLevels>();
+		ArrayList<StockLevels> rejectedListStocks = getRejectListStocks();
+//		shortListedStocks.removeAll(rejectedListStocks);
 		int i = 0;
 		long starttime = System.currentTimeMillis();
 		long endtime;
@@ -91,8 +98,34 @@ public class StockNotification {
 			System.out.println("\nShortListed levels Size" + shortListedStocks.size());
 			int listSize = shortListedStocks.size();
 			for (StockLevels levels : shortListedStocks) {
+				boolean toProceed = true;
+				String stockName = levels.getStockName();
+				String levelType = levels.getLevelType();
+				Double oldLevel =  levels.getOldLevel();
+				Double oldLevelEnd = levels.getOldLevelEnd();
+				for (StockLevels rejectedLevels : rejectedListStocks) {
+					if (stockName.equalsIgnoreCase(rejectedLevels.getStockName())
+							&& levelType.equalsIgnoreCase(rejectedLevels.getLevelType())
+							&& oldLevel.equals(rejectedLevels.getOldLevel())
+							&& oldLevelEnd.equals(rejectedLevels.getOldLevelEnd())) {
+						
+						toProceed = false;
+						break;
+					}
 
+				}
+				if(toProceed) {
 				quote = 0.0;
+				if(inputLevelPercent == notifyPercent) {
+					levels.setNewLevel(levels.getOldLevel());
+					levels.setNewLevelPercent(levels.getOldLevelPercent());
+					newShortListedStocks.add(levels);
+					
+				}
+				else {
+					
+				
+				
 				quote = getQuote(levels.getStockName(), "&apikey=F4ASHUF1BONNF5AQ");
 				double newLevelPercent;
 				if(levels.getLevelType().equalsIgnoreCase("Support")) {
@@ -115,6 +148,8 @@ public class StockNotification {
 					Thread.sleep(61000 - timetaken);
 					starttime = System.currentTimeMillis();
 				}
+				}
+			}
 			}
 
 		}
@@ -236,5 +271,48 @@ public class StockNotification {
         out.flush();
         out.close();
     }
+	
+	public static ArrayList<StockLevels> getRejectListStocks() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		ArrayList<StockLevels> rejectListStocks = new ArrayList<>();
+
+		try {
+
+			fr = new FileReader(rejectedStocksListPath);
+			br = new BufferedReader(fr);
+
+			// read line by line
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				// System.out.println(line);
+				String[] splitLines = line.split("\\|");
+				StockLevels levels = new StockLevels();
+				levels.setStockName(splitLines[0]);
+				levels.setDate(splitLines[1]);
+				levels.setLevelType(splitLines[2]);
+				levels.setOldLevel(Double.valueOf(splitLines[3]));
+				levels.setOldLevelEnd((Double.valueOf(splitLines[4])));
+				levels.setOldLevelPercent(Double.valueOf(splitLines[5]));
+				rejectListStocks.add(levels);
+			}
+
+		} catch (IOException e) {
+			System.err.format("IOException: %s%n", e);
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				System.err.format("IOException: %s%n", ex);
+			}
+		}
+		return rejectListStocks;
+	}
+
 
 }
