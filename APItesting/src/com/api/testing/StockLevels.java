@@ -67,6 +67,7 @@ public class StockLevels {
 	
 	public Double oldLevel;
 	
+	
 	/**
 	 * @return the oldLevel
 	 */
@@ -130,5 +131,21 @@ public class StockLevels {
 	public Double newLevel;
 	
 	public Double newLevelPercent;
+	
+	public Double score = 0.00;
+
+	/**
+	 * @return the score
+	 */
+	public Double getScore() {
+		return score;
+	}
+
+	/**
+	 * @param score the score to set
+	 */
+	public void setScore(Double score) {
+		this.score = score;
+	}
 
 }
