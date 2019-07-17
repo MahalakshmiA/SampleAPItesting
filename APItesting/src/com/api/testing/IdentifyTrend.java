@@ -16,7 +16,10 @@ import com.sample.Timezone;
 public class IdentifyTrend {
 	
 	private static StringBuffer trendList = new StringBuffer();
+	public static String fileName = "niftyStocksLevels";
+	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
 	public static void main(String[] args) throws IOException {
+		
 		long starttimefinal = System.currentTimeMillis();
 		long endtimefinal;
 		System.out.println("Start time " +  new Date(starttimefinal));	
@@ -24,7 +27,7 @@ public class IdentifyTrend {
 		long starttime = System.currentTimeMillis();
 		long endtime;
 		long timetaken;
-		String timeFrame = "weekly";
+		String timeFrame = "monthly";
 		
 		try {
 			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
@@ -43,20 +46,21 @@ public class IdentifyTrend {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
-			NiftyStocksDailyLevels2.writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksTrend"+timeFrame+".txt",trendList);
+			String outputFile  = path+ "niftyStocks"+timeFrame+"Trend.txt";
+			NiftyStocksDailyLevels2.writeToFile(outputFile,trendList);
 			}
 	}
 
 
-	public static void identifyTrend(String symbol,String timeframe) {
+	public static String identifyTrend(String symbol,String timeframe) {
+		String trend = "";
 		try {
 //			HashMap<String, String> map1 = new HashMap<>();
 			String interval="&interval="+timeframe;
 			String time_period = "&time_period=50";
 			String series_type="&series_type=close";
 			String urlString = formURL("SMA", symbol,interval,time_period,series_type, "&apikey=F4ASHUF1BONNF5AQ");
-//			System.out.println("URL " +urlString);
+			System.out.println("URL " +urlString);
 			Map map =NiftyStocksDailyLevels2.retriveAPIdata(urlString);
 					
 			if (map.containsKey("Note")) {
@@ -67,13 +71,16 @@ public class IdentifyTrend {
 					if(isAscendingOrdered(map1)) {
 						System.out.println(symbol + " UP Trend ");
 						trendList.append(symbol+"|UP\n");
+						trend = "UP";
 						
 					}else if (isDescendingOrdered(map1)) {
 						System.out.println(symbol +" DOWN Trend ");		
 						trendList.append(symbol+"|DOWN\n");
+						trend = "DOWN";
 					}else {
 						System.out.println(symbol +" NO Trend ");
 						trendList.append(symbol+"|NO\n");
+						trend = "NO";
 					}
 					
 				}
@@ -82,6 +89,7 @@ public class IdentifyTrend {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return trend;
 	}
 
 	

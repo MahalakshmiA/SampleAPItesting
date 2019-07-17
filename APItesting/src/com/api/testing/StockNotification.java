@@ -32,27 +32,33 @@ import com.google.gson.JsonSyntaxException;
  */
 public class StockNotification {
 
-//	public static String fileName = "TwoHourLevels";
-//	public static String fileName = "Hourlylevels";
+	// public static String fileName = "TwoHourLevels";
+	// public static String fileName = "Hourlylevels";
 	public static String fileName = "niftyStocksLevels";
 	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
-//	public static String niftyStocksLevelsPath = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
-	public static String niftyStocksLevelsPath = path+fileName+".txt";
-	public static String rejectedStocksListPath = path+"rejectedStocksList.txt";
-	public static String niftyStocksMonthlyLevelPath = path+"niftyStocksMonthlyLevels.txt";
-	public static String niftyTrendListPath = path+"niftyStocksTrend.txt";
-	public static String notifyFile = path+"Notify"+fileName+".txt";
-	public static int notifyPercent = 3;
-	public static int inputLevelPercent = 3;
+	// public static String niftyStocksLevelsPath =
+	// "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
+	public static String niftyStocksLevelsPath = path + fileName + ".txt";
+	public static String rejectedStocksListPath = path + "rejectedStocksList.txt";
+	public static String niftyStocksMonthlyLevelPath = path + "niftyStocksMonthlyLevels.txt";
+	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksMonthlyLevels.txt";
+	public static String niftyMonthlyTrendListPath = path + "niftyStocksMonthlyTrend.txt";
+	public static String niftyWeeklylyTrendListPath = path + "niftyStocksWeeklyTrend.txt";
+	public static String notifyFile = path + "Notify" + fileName + ".txt";
+	public static int notifyPercent = 5;
+	public static int inputLevelPercent = 5;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
+	private static int i = 0;
+	private static long starttime;
+	private static long endtime;
 
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		getStocksNotification();
-	//	getNiftyStocksMonthlyLevels();
+		// getNiftyStocksMonthlyLevels();
 
 	}
 
@@ -63,31 +69,31 @@ public class StockNotification {
 		// TODO Auto-generated method stub
 		try {
 			ArrayList<StockLevels> newShortListedStocks = getNotifications();
-			
+
 			Collections.sort(newShortListedStocks, new Comparator<StockLevels>() {
-				  public int compare(StockLevels u1, StockLevels u2) {
-				    return u1.getNewLevelPercent().compareTo(u2.getNewLevelPercent());
-				  }
-				});
-			
+				public int compare(StockLevels u1, StockLevels u2) {
+					return u1.getNewLevelPercent().compareTo(u2.getNewLevelPercent());
+				}
+			});
+
 			System.out.println("\nNewShortListedStocks Size " + newShortListedStocks.size() + "\n");
-			
+
 			for (StockLevels levels : newShortListedStocks) {
-				String notificationLevel = levels.getStockName() + "|" + levels.getDate()  + "|" +levels.getLevelType() +
-						"|" + levels.getOldLevel()+ "|" + levels.getOldLevelEnd()
-				+ "|" + levels.getOldLevelPercent() + "|" + levels.getNewLevel() + "|"
-				+ df2.format(levels.getNewLevelPercent()) + "|" +Double.valueOf(levels.getScore());
+				String notificationLevel = levels.getStockName() + "|" + levels.getDate() + "|" + levels.getLevelType()
+						+ "|" + levels.getOldLevel() + "|" + levels.getOldLevelEnd() + "|" + levels.getOldLevelPercent()
+						+ "|" + levels.getNewLevel() + "|" + df2.format(levels.getNewLevelPercent()) + "|"
+						+ Double.valueOf(levels.getScore());
 				System.out.println(notificationLevel);
-				notificationLevels.append(notificationLevel+"\n");
+				notificationLevels.append(notificationLevel + "\n");
 
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
-			
-			writeToFile(notifyFile,notificationLevels);
-//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
+		} finally {
+
+			writeToFile(notifyFile, notificationLevels);
+			// writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
 		}
 		long endtimefinal = System.currentTimeMillis();
 		System.out.println("\nEnd time " + new Date(endtimefinal));
@@ -100,14 +106,19 @@ public class StockNotification {
 		ArrayList<StockLevels> shortListedStocks = getshortListedStocks();
 		ArrayList<StockLevels> newShortListedStocks = new ArrayList<StockLevels>();
 		ArrayList<StockLevels> rejectedListStocks = getRejectListStocks();
-		 TreeMap<String, MnthlyLvlStockDetail> mnthlyLvlStockDetailsMap = getNiftyStocksMonthlyLevels();
-		 TreeMap<String, String> trendMap = getNiftyTrends(niftyTrendListPath);
+		TreeMap<String, MnthlyLvlStockDetail> curveLvlMap;
+		if(fileName.equalsIgnoreCase("niftyStocksLevels")) {
+			curveLvlMap = getNiftyStocksMonthlyLevels(niftyStocksMonthlyLevelPath);			
+		}else {
+			curveLvlMap = getNiftyStocksMonthlyLevels(niftyStocksMonthlyLevelPath);			
+		}
 		
-		
-//		shortListedStocks.removeAll(rejectedListStocks);
-		int i = 0;
-		long starttime = System.currentTimeMillis();
-		long endtime;
+		TreeMap<String, String> monthlyTrendMap = getNiftyTrends(niftyMonthlyTrendListPath);
+		TreeMap<String, String> weeklyTrendMap = getNiftyTrends(niftyWeeklylyTrendListPath);
+
+		// shortListedStocks.removeAll(rejectedListStocks);
+
+		starttime = System.currentTimeMillis();		
 		long timetaken;
 		if (!shortListedStocks.isEmpty()) {
 			System.out.println("\nShortListed levels Size" + shortListedStocks.size());
@@ -116,90 +127,139 @@ public class StockNotification {
 				boolean toProceed = true;
 				String stockName = levels.getStockName();
 				String levelType = levels.getLevelType();
-				Double oldLevel =  levels.getOldLevel();
+				Double oldLevel = levels.getOldLevel();
 				Double oldLevelEnd = levels.getOldLevelEnd();
 				for (StockLevels rejectedLevels : rejectedListStocks) {
 					if (stockName.equalsIgnoreCase(rejectedLevels.getStockName())
 							&& levelType.equalsIgnoreCase(rejectedLevels.getLevelType())
 							&& oldLevel.equals(rejectedLevels.getOldLevel())
 							&& oldLevelEnd.equals(rejectedLevels.getOldLevelEnd())) {
-						
+
 						toProceed = false;
 						break;
 					}
 
 				}
-				if(toProceed) {
-				quote = 0.0;
-				if(inputLevelPercent == notifyPercent) {
-					levels.setNewLevel(levels.getOldLevel());
-					levels.setNewLevelPercent(levels.getOldLevelPercent());
-					MnthlyLvlStockDetail monthlyLvlDetail = mnthlyLvlStockDetailsMap.get(stockName);
-					Double score = getScore(monthlyLvlDetail, oldLevel, levelType);
-					
-					
-					String trend = trendMap.get(stockName);
-					if(levelType.equalsIgnoreCase("Resistance") && trend.equalsIgnoreCase("Down")) {
-						score = score +1;
-						
-					}else if(levelType.equalsIgnoreCase("Support") && trend.equalsIgnoreCase("Up")) {
-						score = score +1;
-						
+				if (toProceed) {
+					quote = 0.0;
+					if (inputLevelPercent == notifyPercent) {
+						levels.setNewLevel(levels.getOldLevel());
+						levels.setNewLevelPercent(levels.getOldLevelPercent());
+
+					} else {
+
+						quote = getQuote(levels.getStockName(), "&apikey=F4ASHUF1BONNF5AQ");
+						double newLevelPercent;
+						if (levels.getLevelType().equalsIgnoreCase("Support")) {
+							newLevelPercent = ((quote - levels.getOldLevel()) * 100 / quote);
+						} else {
+							newLevelPercent = ((levels.getOldLevel() - quote) * 100 / quote);
+						}
+						// System.out.println(newLevelPercent);
+						if (newLevelPercent < notifyPercent) {
+							levels.setNewLevel(quote);
+							levels.setNewLevelPercent(newLevelPercent);
+
+						} else {
+							continue;
+						}
+						i++;
+						endtime = System.currentTimeMillis();
+						timetaken = endtime - starttime;
+						if (timetaken < 60000 && (i % 5 == 0) && i < listSize) {
+							System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
+							Thread.sleep(61000 - timetaken);
+							starttime = System.currentTimeMillis();
+						}
 					}
-					levels.setScore(score);
-					System.out.println(monthlyLvlDetail.getStockName() + "|" + score);
+					MnthlyLvlStockDetail curveLvlDetail = curveLvlMap.get(stockName);
+					int curveScore = getCurveScore(curveLvlDetail, oldLevel, levelType);
+					int trendScore = getTrendScore(monthlyTrendMap, weeklyTrendMap, stockName, levelType);
+					levels.setScore(curveScore + trendScore);
+					System.out.println(curveLvlDetail.getStockName() + "|" + curveScore + trendScore);
 					newShortListedStocks.add(levels);
-					
 				}
-				else {
-					
-				
-				
-				quote = getQuote(levels.getStockName(), "&apikey=F4ASHUF1BONNF5AQ");
-				double newLevelPercent;
-				if(levels.getLevelType().equalsIgnoreCase("Support")) {
-					newLevelPercent = ((quote - levels.getOldLevel()) * 100 / quote);
-				}else {
-					newLevelPercent = ((levels.getOldLevel() - quote) * 100 / quote);
-				}
-				
-				// System.out.println(newLevelPercent);
-				if (newLevelPercent < notifyPercent) {
-					levels.setNewLevel(quote);
-					levels.setNewLevelPercent(newLevelPercent);	
-					MnthlyLvlStockDetail monthlyLvlDetail = mnthlyLvlStockDetailsMap.get(stockName);
-					Double score = getScore(monthlyLvlDetail, oldLevel, levelType);
-					
-					
-					String trend = trendMap.get(stockName);
-					if(levelType.equalsIgnoreCase("Resistance") && trend.equalsIgnoreCase("Down")) {
-						score = score +1;
-						
-					}else if(levelType.equalsIgnoreCase("Support") && trend.equalsIgnoreCase("Up")) {
-						score = score +1;
-						
-					}
-					levels.setScore(score);
-					System.out.println(monthlyLvlDetail.getStockName() + "|" + score);
-					newShortListedStocks.add(levels);
-					
-				}
-				i++;
-				endtime = System.currentTimeMillis();
-				timetaken = endtime - starttime;
-				if (timetaken < 60000 && (i % 5 == 0) && i < listSize) {
-					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
-					Thread.sleep(61000 - timetaken);
-					starttime = System.currentTimeMillis();
-				}
-				}
-			}
-				
+
 			}
 
 		}
 		return newShortListedStocks;
 
+	}
+
+	private static int getTrendScore(TreeMap<String, String> monthlyTrendMap, TreeMap<String, String> weeklyTrendMap,
+			String stockName, String levelType) {
+		String monthlyTrend = monthlyTrendMap.get(stockName);
+		String weeklyTrend = weeklyTrendMap.get(stockName);
+		int score = 0;
+		long timetaken;
+		try {
+			if (fileName.equalsIgnoreCase("niftyStocksLevels")) {
+				if (levelType.equalsIgnoreCase("Resistance") && monthlyTrend.equalsIgnoreCase("Down")) {
+					score = score + 1;
+				} else if (levelType.equalsIgnoreCase("Support") && monthlyTrend.equalsIgnoreCase("Up")) {
+					score = score + 1;
+				}
+			} else {
+				String hourlyTrend = IdentifyTrend.identifyTrend(stockName, "60mins");
+				if (levelType.equalsIgnoreCase("Resistance")) {
+
+					if (hourlyTrend.equalsIgnoreCase("Down")) {
+						score = score + 1;
+					}
+
+				} else if (levelType.equalsIgnoreCase("Support")) {
+
+					if (hourlyTrend.equalsIgnoreCase("Up")) {
+						score = score + 1;
+					}
+
+				}
+				i++;
+				endtime = System.currentTimeMillis();
+				timetaken = endtime - starttime;
+				if (timetaken < 60000 && (i % 5 == 0) ) {
+					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
+					Thread.sleep(61000 - timetaken);
+					starttime = System.currentTimeMillis();
+				}
+
+			}
+
+			String dailyTrend = IdentifyTrend.identifyTrend(stockName, "daily");
+			i++;
+			endtime = System.currentTimeMillis();
+			timetaken = endtime - starttime;
+			if (timetaken < 60000 && (i % 5 == 0) ) {
+				System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
+				Thread.sleep(61000 - timetaken);
+				starttime = System.currentTimeMillis();
+			}
+
+			if (levelType.equalsIgnoreCase("Resistance")) {
+				if (weeklyTrend.equalsIgnoreCase("Down")) {
+					score = score + 1;
+				}
+				if (dailyTrend.equalsIgnoreCase("Down")) {
+					score = score + 1;
+				}
+
+			} else if (levelType.equalsIgnoreCase("Support")) {
+				if (weeklyTrend.equalsIgnoreCase("Up")) {
+					score = score + 1;
+				}
+
+				if (dailyTrend.equalsIgnoreCase("Up")) {
+					score = score + 1;
+				}
+
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return score;
 	}
 
 	static double getQuote(String symbol, String apiKey) throws Exception {
@@ -309,14 +369,14 @@ public class StockNotification {
 		}
 		return shortListedStocks;
 	}
-	
+
 	public static void writeToFile(String pFilename, StringBuffer pData) throws IOException {
-        BufferedWriter out = new BufferedWriter(new FileWriter(pFilename));
-        out.write(pData.toString());
-        out.flush();
-        out.close();
-    }
-	
+		BufferedWriter out = new BufferedWriter(new FileWriter(pFilename));
+		out.write(pData.toString());
+		out.flush();
+		out.close();
+	}
+
 	public static ArrayList<StockLevels> getRejectListStocks() {
 		BufferedReader br = null;
 		FileReader fr = null;
@@ -358,8 +418,8 @@ public class StockNotification {
 		}
 		return rejectListStocks;
 	}
-	
-	private static TreeMap<String, MnthlyLvlStockDetail>  getNiftyStocksMonthlyLevels() {
+
+	private static TreeMap<String, MnthlyLvlStockDetail> getNiftyStocksMonthlyLevels(String levelPath) {
 
 		BufferedReader br = null;
 		FileReader fr = null;
@@ -367,7 +427,7 @@ public class StockNotification {
 
 		try {
 
-			fr = new FileReader(niftyStocksMonthlyLevelPath);
+			fr = new FileReader(levelPath);
 			br = new BufferedReader(fr);
 
 			// read line by line
@@ -377,9 +437,9 @@ public class StockNotification {
 				// System.out.println(line);
 				String[] splitLines = line.split("\\|");
 				if (mnthlyLvlStockDetailsMap.containsKey(splitLines[0])) {
-					
+
 					MnthlyLvlStockDetail monthlyLvlDetail = mnthlyLvlStockDetailsMap.get(splitLines[0]);
-					
+
 					setMnthlyLvlStockDetail(splitLines, monthlyLvlDetail);
 
 				} else {
@@ -391,19 +451,22 @@ public class StockNotification {
 				}
 
 			}
-			
-			System.out.println("mnthlyLvlStockDetailsMap Size" + mnthlyLvlStockDetailsMap.size());
-		/*	for (Entry<String, MnthlyLvlStockDetail> entry1 : mnthlyLvlStockDetailsMap.entrySet()) {
-				System.out.println(entry1.getKey() + "| Support Date - " + entry1.getValue().getSupportDate()
-						+ "| curve Low start - " + entry1.getValue().getCurveLowStart() + "| curve Low end - "
-						+ entry1.getValue().getCurveLowEnd() + "| Resistance date - "
-						+ entry1.getValue().getResistanceDate() + "| curve High start - "
-						+ entry1.getValue().getCurveHighStart() + "| curve High end - "
-						+ entry1.getValue().getCurveHighEnd() + "| Score " + entry1.getValue().getScore());
 
-			}*/
-			
-			
+			System.out.println("mnthlyLvlStockDetailsMap Size" + mnthlyLvlStockDetailsMap.size());
+			/*
+			 * for (Entry<String, MnthlyLvlStockDetail> entry1 :
+			 * mnthlyLvlStockDetailsMap.entrySet()) { System.out.println(entry1.getKey() +
+			 * "| Support Date - " + entry1.getValue().getSupportDate() +
+			 * "| curve Low start - " + entry1.getValue().getCurveLowStart() +
+			 * "| curve Low end - " + entry1.getValue().getCurveLowEnd() +
+			 * "| Resistance date - " + entry1.getValue().getResistanceDate() +
+			 * "| curve High start - " + entry1.getValue().getCurveHighStart() +
+			 * "| curve High end - " + entry1.getValue().getCurveHighEnd() + "| Score " +
+			 * entry1.getValue().getScore());
+			 * 
+			 * }
+			 */
+
 		} catch (IOException e) {
 			System.err.format("IOException: %s%n", e);
 		} finally {
@@ -422,9 +485,8 @@ public class StockNotification {
 	}
 
 	private static void setMnthlyLvlStockDetail(String[] splitLines, MnthlyLvlStockDetail monthlyLvlDetail) {
-		
-		if (splitLines[1].equalsIgnoreCase("No Support")
-				|| splitLines[1].equalsIgnoreCase("No Resistance")) {
+
+		if (splitLines[1].equalsIgnoreCase("No Support") || splitLines[1].equalsIgnoreCase("No Resistance")) {
 
 			if (splitLines[1].equalsIgnoreCase("No Support")) {
 				monthlyLvlDetail.setCurveLowStart(Double.valueOf("0"));
@@ -436,7 +498,7 @@ public class StockNotification {
 
 			}
 
-			monthlyLvlDetail.setScore(Double.valueOf("1"));
+			monthlyLvlDetail.setScore(1);
 
 		} else {
 			String date = splitLines[1];
@@ -452,18 +514,18 @@ public class StockNotification {
 				monthlyLvlDetail.setCurveHighEnd(Double.valueOf(splitLines[4]));
 
 			}
-			if (null != monthlyLvlDetail.getScore() && monthlyLvlDetail.getScore().equals(Double.valueOf("1"))) {
-				monthlyLvlDetail.setScore(Double.valueOf("1"));
+			if (0 != monthlyLvlDetail.getScore() && monthlyLvlDetail.getScore() == 1) {
+				monthlyLvlDetail.setScore(1);
 			} else {
-				monthlyLvlDetail.setScore(Double.valueOf("0"));
+				monthlyLvlDetail.setScore(0);
 			}
 
 		}
 	}
-	
-	private static Double getScore(MnthlyLvlStockDetail monthlyLvlDetail, Double level, String levelType) {
 
-		Double score = 0.00;
+	private static int getCurveScore(MnthlyLvlStockDetail monthlyLvlDetail, Double level, String levelType) {
+
+		int score = 0;
 		Double curveLowStart = monthlyLvlDetail.getCurveLowStart();
 		Double curveLowEnd = monthlyLvlDetail.getCurveLowEnd();
 		Double curveHighStart = monthlyLvlDetail.getCurveHighStart();
@@ -472,28 +534,28 @@ public class StockNotification {
 		Double curve1 = curveLowStart + curveSection;
 		Double curve2 = curve1 + curveSection;
 
-		if (monthlyLvlDetail != null && null != monthlyLvlDetail.getScore()) {
-			if (monthlyLvlDetail.getScore().equals(Double.valueOf("1"))) {
+		if (monthlyLvlDetail != null && 0 != monthlyLvlDetail.getScore()) {
+			if (monthlyLvlDetail.getScore() == 1) {
 				score = monthlyLvlDetail.getScore();
 			} else {
 
 				if (levelType.equalsIgnoreCase("Support") && (curveLowEnd <= level && level <= curveLowStart)) {
-					score = Double.valueOf("2");
+					score = 2;
 
 				} else if (levelType.equalsIgnoreCase("Resistance")
 						&& (curveHighStart <= level && level <= curveHighEnd)) {
-					score = Double.valueOf("2");
+					score = 2;
 
 				} else if (levelType.equalsIgnoreCase("Support") && (curveLowStart <= level && level <= curve1)) {
-					score = Double.valueOf("2");
+					score = 2;
 				} else if (levelType.equalsIgnoreCase("Resistance") && (curve2 <= level && level <= curveHighStart)) {
-					score = Double.valueOf("2");
+					score = 2;
 
 				} else if (curve1 <= level && level <= curve2) {
-					score = Double.valueOf("1");
+					score = 1;
 
 				} else {
-					score = Double.valueOf("0");
+					score = 0;
 				}
 
 			}
@@ -501,7 +563,7 @@ public class StockNotification {
 		return score;
 
 	}
-	
+
 	private static TreeMap<String, String> getNiftyTrends(String fileName) {
 
 		BufferedReader br = null;
@@ -525,7 +587,6 @@ public class StockNotification {
 
 			System.out.println("mnthlyLvlStockDetailsMap Size" + niftyTrendList.size());
 
-
 		} catch (IOException e) {
 			System.err.format("IOException: %s%n", e);
 		} finally {
@@ -542,6 +603,5 @@ public class StockNotification {
 		return niftyTrendList;
 
 	}
-
 
 }

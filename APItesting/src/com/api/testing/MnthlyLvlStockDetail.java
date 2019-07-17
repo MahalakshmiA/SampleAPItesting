@@ -16,7 +16,7 @@ public class MnthlyLvlStockDetail {
 	
 	Double curveHighEnd;
 	
-	Double score;
+	int score;
 
 	/**
 	 * @return the stockName
@@ -119,14 +119,14 @@ public class MnthlyLvlStockDetail {
 	/**
 	 * @return the score
 	 */
-	public Double getScore() {
+	public int getScore() {
 		return score;
 	}
 
 	/**
 	 * @param score the score to set
 	 */
-	public void setScore(Double score) {
+	public void setScore(int score) {
 		this.score = score;
 	}
 	
