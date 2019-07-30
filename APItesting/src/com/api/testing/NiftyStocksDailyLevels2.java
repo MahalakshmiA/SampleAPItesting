@@ -14,7 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -80,8 +82,8 @@ public class NiftyStocksDailyLevels2 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
-//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
@@ -232,30 +234,32 @@ public class NiftyStocksDailyLevels2 {
 		Double lastCandleHigh = 0.0;
 		Double lastCandlelow = 0.0;
 
-		boolean isSuppAvailble = false;
-		boolean isResistAvailble = false;
+		boolean isSuppThreshold = false;
+		boolean isResistThreshold = false;
 		boolean supportGap;
 		boolean resistGap;
 		boolean testModule = false;
-		while (i != noOfdays) {
+		
+		Set keys = map1.keySet();
+		Iterator it = keys.iterator();
+		while (it.hasNext()) {
 			supportGap = false;
 			resistGap = false;
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DATE, -i);
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			strDate = formatter.format(cal.getTime());
-
-			try {
-				if (cal.getTime().after(new SimpleDateFormat("yyyy-MM-dd").parse(startDate))) {
-//					System.out.println(" Date to Skip " + cal.getTime());
-					i++;
-					continue;
-				}
-
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			/*
+			 * Calendar cal = Calendar.getInstance(); cal.add(Calendar.DATE, -i);
+			 * SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); strDate =
+			 * formatter.format(cal.getTime());
+			 * 
+			 * try { if (cal.getTime().after(new
+			 * SimpleDateFormat("yyyy-MM-dd").parse(startDate))) {
+			 * System.out.println(" Date to Skip " + cal.getTime()); i++; continue; }
+			 * 
+			 * } catch (ParseException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); }
+			 */
+			
+			strDate = (String) it.next();			
+			
 
 			// System.out.println("\n" + strDate);
 			if (map1.containsKey(strDate)) {				
@@ -268,7 +272,7 @@ public class NiftyStocksDailyLevels2 {
 				candleClose = Double.parseDouble(map2.get("4. close").toString());
 				
 				// Avoid candle with all 0 data, consider it as data issue and skip that candle
-				if (candleHigh == 0.0 || candlelow == 0.0 || candleOpen == 0.0 || candleClose == 0.0) {
+				if (candleHigh == 0.0 && candlelow == 0.0 && candleOpen == 0.0 && candleClose == 0.0) {
 					i++;
 					continue;
 				}
@@ -277,7 +281,17 @@ public class NiftyStocksDailyLevels2 {
 					quote = candleClose;
 //					System.out.println(symbolGlobal+" | "  + quote);
 				}
-				if (Math.abs(((candleClose - quote) * 100 / quote)) > 20) {
+				//Check resistance till certain percentage
+				if (((candleClose - quote) * 100 / quote) > 20) {
+					isResistThreshold = true;
+					continue;
+				}
+				//Check support till certain percentage
+				if (((candleClose - quote) * 100 / quote) < -20) {
+					isSuppThreshold = true;
+					continue;
+				}
+				if(isResistThreshold && isSuppThreshold) {
 					break;
 				}
 				}
@@ -411,7 +425,7 @@ public class NiftyStocksDailyLevels2 {
 										" Support level " + strDate + " from  " + supportHigh + " to " + supportLow);*/
 								System.out.println(printLevel);
 								levelsList.append(printLevel+"\n");
-								isSuppAvailble = true;
+//								isSuppAvailble = true;
 //							}
 						}
 					} else if (resistLevel) {
@@ -425,7 +439,7 @@ public class NiftyStocksDailyLevels2 {
 										" Resistance level " + strDate + " from  " + resistLow + " to " + resistHigh);*/
 								System.out.println(printLevel);
 								levelsList.append(printLevel+"\n");
-								isResistAvailble = true;
+//								isResistAvailble = true;
 //							}
 						}
 					}
