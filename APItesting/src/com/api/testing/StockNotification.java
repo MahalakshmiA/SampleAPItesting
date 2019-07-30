@@ -32,21 +32,21 @@ import com.google.gson.JsonSyntaxException;
  */
 public class StockNotification {
 
-	// public static String fileName = "TwoHourLevels";
-	// public static String fileName = "Hourlylevels";
-	public static String fileName = "niftyStocksLevels";
-	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
-	// public static String niftyStocksLevelsPath =
-	// "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt";
+//	 public static String fileName = "TwoHourLevels";
+	 public static String fileName = "Hourlylevels";
+//	public static String fileName = "niftyStocksLevels";
+//	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
+	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
+	
 	public static String niftyStocksLevelsPath = path + fileName + ".txt";
 	public static String rejectedStocksListPath = path + "rejectedStocksList.txt";
 	public static String niftyStocksMonthlyLevelPath = path + "niftyStocksMonthlyLevels.txt";
 	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksMonthlyLevels.txt";
-	public static String niftyMonthlyTrendListPath = path + "niftyStocksMonthlyTrend.txt";
-	public static String niftyWeeklylyTrendListPath = path + "niftyStocksWeeklyTrend.txt";
+	public static String niftyMonthlyTrendListPath = path + "niftyStocksTrendmonthly.txt";
+	public static String niftyWeeklylyTrendListPath = path + "niftyStocksTrendweekly.txt";
 	public static String notifyFile = path + "Notify" + fileName + ".txt";
-	public static int notifyPercent = 5;
-	public static int inputLevelPercent = 5;
+	public static int notifyPercent = 3;
+	public static int inputLevelPercent = 3;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
 	private static int i = 0;
 	private static long starttime;
@@ -173,10 +173,11 @@ public class StockNotification {
 						}
 					}
 					MnthlyLvlStockDetail curveLvlDetail = curveLvlMap.get(stockName);
-					int curveScore = getCurveScore(curveLvlDetail, oldLevel, levelType);
+//					int curveScore = getCurveScore(curveLvlDetail, oldLevel, levelType);
+					int curveScore = 0;
 					int trendScore = getTrendScore(monthlyTrendMap, weeklyTrendMap, stockName, levelType);
 					levels.setScore(curveScore + trendScore);
-					System.out.println(curveLvlDetail.getStockName() + "|" + curveScore + trendScore);
+					System.out.println(stockName + "|" + curveScore + trendScore);
 					newShortListedStocks.add(levels);
 				}
 
@@ -189,19 +190,24 @@ public class StockNotification {
 
 	private static int getTrendScore(TreeMap<String, String> monthlyTrendMap, TreeMap<String, String> weeklyTrendMap,
 			String stockName, String levelType) {
-		String monthlyTrend = monthlyTrendMap.get(stockName);
-		String weeklyTrend = weeklyTrendMap.get(stockName);
 		int score = 0;
-		long timetaken;
 		try {
+
+//			String weeklyTrend = weeklyTrendMap.get(stockName);
+			String weeklyTrend = IdentifyTrend.identifyTrend(stockName, "weekly");
+			delay();
+			
 			if (fileName.equalsIgnoreCase("niftyStocksLevels")) {
+//				String monthlyTrend = monthlyTrendMap.get(stockName);
+				String monthlyTrend = IdentifyTrend.identifyTrend(stockName, "monthly");
+				delay();
 				if (levelType.equalsIgnoreCase("Resistance") && monthlyTrend.equalsIgnoreCase("Down")) {
 					score = score + 1;
 				} else if (levelType.equalsIgnoreCase("Support") && monthlyTrend.equalsIgnoreCase("Up")) {
 					score = score + 1;
 				}
 			} else {
-				String hourlyTrend = IdentifyTrend.identifyTrend(stockName, "60mins");
+				String hourlyTrend = IdentifyTrend.identifyTrend(stockName, "60min");
 				if (levelType.equalsIgnoreCase("Resistance")) {
 
 					if (hourlyTrend.equalsIgnoreCase("Down")) {
@@ -215,26 +221,12 @@ public class StockNotification {
 					}
 
 				}
-				i++;
-				endtime = System.currentTimeMillis();
-				timetaken = endtime - starttime;
-				if (timetaken < 60000 && (i % 5 == 0) ) {
-					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
-					Thread.sleep(61000 - timetaken);
-					starttime = System.currentTimeMillis();
-				}
+				delay();
 
 			}
 
 			String dailyTrend = IdentifyTrend.identifyTrend(stockName, "daily");
-			i++;
-			endtime = System.currentTimeMillis();
-			timetaken = endtime - starttime;
-			if (timetaken < 60000 && (i % 5 == 0) ) {
-				System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
-				Thread.sleep(61000 - timetaken);
-				starttime = System.currentTimeMillis();
-			}
+			delay();
 
 			if (levelType.equalsIgnoreCase("Resistance")) {
 				if (weeklyTrend.equalsIgnoreCase("Down")) {
@@ -260,6 +252,18 @@ public class StockNotification {
 		}
 
 		return score;
+	}
+
+	public static void delay() throws InterruptedException {
+		long timetaken;
+		i++;
+		endtime = System.currentTimeMillis();
+		timetaken = endtime - starttime;
+		if (timetaken < 60000 && (i % 5 == 0) ) {
+			System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
+			Thread.sleep(61000 - timetaken);
+			starttime = System.currentTimeMillis();
+		}
 	}
 
 	static double getQuote(String symbol, String apiKey) throws Exception {

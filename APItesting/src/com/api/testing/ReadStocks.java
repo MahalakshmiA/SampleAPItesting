@@ -11,7 +11,8 @@ import java.util.Scanner;
 
 public class ReadStocks {
 	
-	private static String filePath = "D:\\Soosai\\APItesting\\config\\file\\";
+	private static String filePath = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
+//	private static String filePath = "D:\\Soosai\\APItesting\\config\\file\\";
 
 	public static void main(String[] args) {
 		getAllStocksMap();
@@ -80,7 +81,7 @@ public class ReadStocks {
 
 			while (scanner.hasNext()) {
 				String line = scanner.nextLine();
-				if (line.endsWith(".NS")) {
+				if (line.endsWith(".NS") || "^NSEI".equalsIgnoreCase(line)) {
 					stockList.add(line);
 
 				}else if (line.endsWith(".BO")) {
