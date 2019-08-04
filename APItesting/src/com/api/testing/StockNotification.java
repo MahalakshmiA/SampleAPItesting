@@ -33,8 +33,8 @@ import com.google.gson.JsonSyntaxException;
 public class StockNotification {
 
 //	 public static String fileName = "TwoHourLevels";
-	 public static String fileName = "Hourlylevels";
-//	public static String fileName = "niftyStocksLevels";
+//	 public static String fileName = "Hourlylevels";
+	public static String fileName = "niftyStocksLevels";
 //	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
 	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
 	
@@ -55,16 +55,40 @@ public class StockNotification {
 	/**
 	 * @param args
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException {
-		getStocksNotification();
-		// getNiftyStocksMonthlyLevels();
+	public static void main(String[] args) throws IOException, InterruptedException {
+//		getStocksNotification();
+//		getAllStockLevelsAndNotify();
+		getAllNotification();
 
+	}
+	
+	private static void getAllStockLevelsAndNotify() throws IOException, InterruptedException {
+		String fileName = "MegaCapStocks";
+		NiftyStocksDailyLevels2.getLevels(fileName);		
+		Thread.sleep(61000);
+		fileName = "niftyStocks";
+		StocksHourlyLevels.getLevels(fileName);
+		Thread.sleep(61000);
+		getAllNotification();
+	}
+	
+	private static void getAllNotification() throws IOException, InterruptedException {
+		fileName = "niftyStocksLevels";
+		getStocksNotification();		
+		Thread.sleep(61000);		
+		fileName = "TwoHourLevels";
+		getStocksNotification();		
+		Thread.sleep(61000);
+		fileName = "Hourlylevels";
+		getStocksNotification();
+		
 	}
 
 	private static void getStocksNotification() throws IOException {
 		long starttimefinal = System.currentTimeMillis();
-		System.out.println("Start time " + new Date(starttimefinal));
+		System.out.println("Notify " + fileName +" Start time " + new Date(starttimefinal));
 		StringBuffer notificationLevels = new StringBuffer();
 		// TODO Auto-generated method stub
 		try {
@@ -96,7 +120,7 @@ public class StockNotification {
 			// writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
 		}
 		long endtimefinal = System.currentTimeMillis();
-		System.out.println("\nEnd time " + new Date(endtimefinal));
+		System.out.println("\nNotify " + fileName +" End time " + new Date(endtimefinal));
 		System.out.println("\nTotal Time Taken " + (endtimefinal - starttimefinal));
 	}
 
@@ -173,8 +197,8 @@ public class StockNotification {
 						}
 					}
 					MnthlyLvlStockDetail curveLvlDetail = curveLvlMap.get(stockName);
-//					int curveScore = getCurveScore(curveLvlDetail, oldLevel, levelType);
-					int curveScore = 0;
+					int curveScore = getCurveScore(curveLvlDetail, oldLevel, levelType);
+//					int curveScore = 0;
 					int trendScore = getTrendScore(monthlyTrendMap, weeklyTrendMap, stockName, levelType);
 					levels.setScore(curveScore + trendScore);
 					System.out.println(stockName + "|" + curveScore + trendScore);
@@ -193,14 +217,19 @@ public class StockNotification {
 		int score = 0;
 		try {
 
-//			String weeklyTrend = weeklyTrendMap.get(stockName);
-			String weeklyTrend = IdentifyTrend.identifyTrend(stockName, "weekly");
+			String weeklyTrend = weeklyTrendMap.get(stockName);
+			if(null == weeklyTrend || "".equalsIgnoreCase(weeklyTrend)) {
+			IdentifyTrend.identifyTrend(stockName, "weekly");
 			delay();
+			}
 			
 			if (fileName.equalsIgnoreCase("niftyStocksLevels")) {
-//				String monthlyTrend = monthlyTrendMap.get(stockName);
-				String monthlyTrend = IdentifyTrend.identifyTrend(stockName, "monthly");
-				delay();
+				String monthlyTrend = monthlyTrendMap.get(stockName);
+				if(null == monthlyTrend  || "".equalsIgnoreCase(monthlyTrend)) {
+					IdentifyTrend.identifyTrend(stockName, "monthly");
+					delay();					
+				}
+				
 				if (levelType.equalsIgnoreCase("Resistance") && monthlyTrend.equalsIgnoreCase("Down")) {
 					score = score + 1;
 				} else if (levelType.equalsIgnoreCase("Support") && monthlyTrend.equalsIgnoreCase("Up")) {

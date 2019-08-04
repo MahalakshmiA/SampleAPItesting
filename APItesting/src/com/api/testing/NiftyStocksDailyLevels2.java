@@ -38,36 +38,28 @@ public class NiftyStocksDailyLevels2 {
 	
 	
 	public static void main(String[] args) throws Exception {
+		String fileName = "MegaCapStocks";
+		getLevels(fileName);
+	}
+
+	public static void getLevels(String fileName) throws IOException {
 		long starttimefinal = System.currentTimeMillis();
 		long endtimefinal;
-		System.out.println("Start time " +  new Date(starttimefinal));	
+		System.out.println("NiftyStocksDailyLevels2 Start time " +  new Date(starttimefinal));	
 		int i = 0;
 		long starttime = System.currentTimeMillis();
 		long endtime;
 		long timetaken;
 		String fnName = "TIME_SERIES_MONTHLY";
 		try {
-			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
-//			getQuote(symbol,"&apikey=F4ASHUF1BONNF5AQ");
-				resetGlobalVariables();				
-				/*i++;
-				endtime = System.currentTimeMillis();
-				timetaken = endtime - starttime;
-				if (timetaken < 60000 && (i % 5 == 0)) {
-					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
-					Thread.sleep(61000-timetaken);
-					starttime = System.currentTimeMillis();
-				}
-				*/
+			for (String symbol : ReadStocks.getIndexStocksList(fileName)) {
+				resetGlobalVariables();	
 				symbolGlobal = symbol;				
 				try {
 					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
-//					getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}
-//				getHTFLevels(symbol,"monthly","&apikey=F4ASHUF1BONNF5AQ");
-//				System.out.println(symbolGlobal+" | "  + quote);
 				i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
@@ -87,44 +79,9 @@ public class NiftyStocksDailyLevels2 {
 			}
 		
 		endtimefinal = System.currentTimeMillis();
-		System.out.println("End time " + new Date(endtimefinal) );
+		System.out.println("NiftyStocksDailyLevels2 End time " + new Date(endtimefinal) );
 		System.out.println("time taken " + (endtimefinal - starttimefinal));
 	}
-
-	/*public static void main(String[] args) {
-
-		try {
-			String fnName = "TIME_SERIES_MONTHLY";
-			int i = 0;
-//			Thread.sleep(70000);
-			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
-				try {
-					quote = 0.0;					
-					getQuote(symbol,"&apikey=J27JKP9HNK701478");	
-//					Thread.sleep(1000);
-					i++;
-					if(i%5 == 0) {
-					Thread.sleep(61000);
-					}	
-					System.out.println(symbol+" | "  + quote);
-					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
-					i++;
-					if(i%5 == 0) {
-					Thread.sleep(61000);
-					}	
-					
-				} catch (Exception e) {					
-					e.printStackTrace();
-				}
-			}
-
-		} catch (Exception e) {
-
-			e.printStackTrace();
-
-		}
-
-	}*/
 	
 	static void  getQuote(String symbol,String apiKey) throws Exception{
 //		Double quote = 0.0;

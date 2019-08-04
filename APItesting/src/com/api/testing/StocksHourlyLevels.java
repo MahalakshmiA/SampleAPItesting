@@ -37,13 +37,19 @@ public class StocksHourlyLevels {
 	private static boolean isLegOutCandle = false;
 	private static Double quote = 0.0;
 	private static String symbolGlobal = "";
-	private static StringBuffer levelsList = new StringBuffer();
+	
 	
 	
 	public static void main(String[] args) throws Exception {
+		String fileName = "niftyStocks";
+		getLevels(fileName);
+	}
+
+
+	public static void getLevels(String fileName) throws IOException {
 		long starttimefinal = System.currentTimeMillis();
 		long endtimefinal;
-		System.out.println("Start time " +  new Date(starttimefinal));	
+		System.out.println("StocksHourlyLevels Start time " +  new Date(starttimefinal));	
 		int i = 0;
 		long starttime = System.currentTimeMillis();
 		long endtime;
@@ -53,13 +59,24 @@ public class StocksHourlyLevels {
 		String interval = "60min";
 		boolean nseStock = true;
 		boolean is120 = true;
+		StringBuffer twoHourlevelsList = new StringBuffer();
+		StringBuffer hourlylevelsList = new StringBuffer();
+		TreeMap<String, Details> sortedCandlesList;
 		try {
-			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
+			for (String symbol : ReadStocks.getIndexStocksList(fileName)) {
 			resetGlobalVariables();		
 			symbolGlobal = symbol;
-			TreeMap<String, Details> sortedCandlesList = HourlyHandler.getCandlesList(symbol,interval);
+			sortedCandlesList = HourlyHandler.getCandlesList(symbol,interval);
 			TreeMap<String, Details> consolidatedHighLowList = HourlyHandler.getHourlyCandlesList(sortedCandlesList, nseStock, is120);
-			listSupportResistance(consolidatedHighLowList);
+			StringBuffer twoHourLevels =  listSupportResistance(consolidatedHighLowList);
+			System.out.println("twoHourLevels \n"+twoHourLevels );
+			twoHourlevelsList.append(twoHourLevels);
+			
+			resetGlobalVariables();	
+			TreeMap<String, Details> consolidatedHighLowList1 = HourlyHandler.getHourlyCandlesList(sortedCandlesList, nseStock, false);
+			StringBuffer hourlyLevels =  listSupportResistance(consolidatedHighLowList1);
+			System.out.println("hourlyLevels \n"+hourlyLevels );
+			hourlylevelsList.append(hourlyLevels);
 			i++;
 			endtime = System.currentTimeMillis();
 			timetaken = endtime - starttime;
@@ -73,17 +90,18 @@ public class StocksHourlyLevels {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-			writeToFile("D:\\Soosai\\APItesting\\config\\file\\stocksHourlyLevels.txt",levelsList);
-//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\stocksHourlyLevels.txt",twoHourlevelsList);
+			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\TwoHourlevels.txt",twoHourlevelsList);
+			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\Hourlylevels.txt",hourlylevelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
-		System.out.println("End time " + new Date(endtimefinal) );
+		System.out.println("StocksHourlyLevels End time " + new Date(endtimefinal) );
 		System.out.println("time taken " + (endtimefinal - starttimefinal));
 	}
 
 
-	static void listSupportResistance(TreeMap<String, Details> consolidatedHighLowList) throws Exception{
+	static StringBuffer listSupportResistance(TreeMap<String, Details> consolidatedHighLowList) throws Exception{
 		/*
 		 * 1. Identify Candle type 2. check leg-in or leg-out candle a. If gap found
 		 * check gap type and decide leg type 3. Check if level(basing) found 4. Check
@@ -133,6 +151,8 @@ public class StocksHourlyLevels {
 		
 		boolean supportGap;
 		boolean resistGap;
+		String printLevel = "";
+		StringBuffer levels = new StringBuffer();
 		
 //		System.out.println("consolidatedHighLowList size"+ consolidatedHighLowList.size());
 
@@ -248,7 +268,7 @@ public class StocksHourlyLevels {
 
 				}				
 				if (markLevel) {
-					String printLevel = "";
+					
 					if (supportLevel) {
 						/*
 						 * System.out.println("Supp " + strDate + " Type " + currCandle + " suppLow " +
@@ -261,8 +281,8 @@ public class StocksHourlyLevels {
 								printLevel = symbolGlobal+"|"+strDate+"|Support|"+supportHigh+"|"+supportLow+"|"+String.format("%.2f",((quote - supportHigh) * 100 / quote));
 								/*System.out.println(
 										" Support level " + strDate + " from  " + supportHigh + " to " + supportLow);*/
-								System.out.println(printLevel);
-								levelsList.append(printLevel+"\n");
+//								System.out.println(printLevel);
+								levels.append(printLevel+"\n");
 //								isSuppAvailble = true;
 //							}
 						}
@@ -275,8 +295,8 @@ public class StocksHourlyLevels {
 								printLevel = symbolGlobal+"|"+strDate+"|Resistance|"+resistLow+"|"+resistHigh+"|"+String.format("%.2f",((resistLow - quote) * 100 / quote));
 								/*System.out.println(
 										" Resistance level " + strDate + " from  " + resistLow + " to " + resistHigh);*/
-								System.out.println(printLevel);
-								levelsList.append(printLevel+"\n");
+//								System.out.println(printLevel);
+								levels.append(printLevel+"\n");
 //								isResistAvailble = true;
 //							}
 						}
@@ -320,6 +340,7 @@ public class StocksHourlyLevels {
 			lastCandle = currCandle;
 			i++;
 		}
+		return levels;
 
 		/*if (!isSuppAvailble)
 			System.out.println("No Support level ");
