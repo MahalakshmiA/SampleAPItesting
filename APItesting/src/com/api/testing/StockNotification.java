@@ -42,7 +42,7 @@ public class StockNotification {
 	public static String rejectedStocksListPath = path + "rejectedStocksList.txt";
 	public static String niftyStocksMonthlyLevelPath = path + "niftyStocksMonthlyLevels.txt";
 	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksMonthlyLevels.txt";
-	public static String niftyMonthlyTrendListPath = path + "niftyStocksTrendmonthly.txt";
+	public static String niftyMonthlyTrendListPath = path + "niftyStocksmonthlyTrend.txt";
 	public static String niftyWeeklylyTrendListPath = path + "niftyStocksTrendweekly.txt";
 	public static String notifyFile = path + "Notify" + fileName + ".txt";
 	public static int notifyPercent = 3;
@@ -215,18 +215,20 @@ public class StockNotification {
 	private static int getTrendScore(TreeMap<String, String> monthlyTrendMap, TreeMap<String, String> weeklyTrendMap,
 			String stockName, String levelType) {
 		int score = 0;
+		String monthlyTrend = "";
+		String weeklyTrend = "";
 		try {
 
-			String weeklyTrend = weeklyTrendMap.get(stockName);
+			weeklyTrend = weeklyTrendMap.get(stockName);
 			if(null == weeklyTrend || "".equalsIgnoreCase(weeklyTrend)) {
-			IdentifyTrend.identifyTrend(stockName, "weekly");
-			delay();
+				weeklyTrend = IdentifyTrend.identifyTrend(stockName, "weekly");
+				delay();
 			}
 			
 			if (fileName.equalsIgnoreCase("niftyStocksLevels")) {
-				String monthlyTrend = monthlyTrendMap.get(stockName);
+				monthlyTrend = monthlyTrendMap.get(stockName);
 				if(null == monthlyTrend  || "".equalsIgnoreCase(monthlyTrend)) {
-					IdentifyTrend.identifyTrend(stockName, "monthly");
+					monthlyTrend = IdentifyTrend.identifyTrend(stockName, "monthly");
 					delay();					
 				}
 				
