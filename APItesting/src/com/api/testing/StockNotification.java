@@ -34,17 +34,18 @@ public class StockNotification {
 
 //	 public static String fileName = "TwoHourLevels";
 //	 public static String fileName = "Hourlylevels";
-	public static String fileName = "niftyStocksLevels";
+//	public static String fileName = "niftyStocksLevels";
+	public static String fileName = "";
 //	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
 	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
 	
-	public static String niftyStocksLevelsPath = path + fileName + ".txt";
+	public static String niftyStocksLevelsPath = "";
 	public static String rejectedStocksListPath = path + "rejectedStocksList.txt";
 	public static String niftyStocksMonthlyLevelPath = path + "niftyStocksMonthlyLevels.txt";
-	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksMonthlyLevels.txt";
+	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksWeeklyLevels.txt";
 	public static String niftyMonthlyTrendListPath = path + "niftyStocksmonthlyTrend.txt";
 	public static String niftyWeeklylyTrendListPath = path + "niftyStocksTrendweekly.txt";
-	public static String notifyFile = path + "Notify" + fileName + ".txt";
+	public static String notifyFile = "";
 	public static int notifyPercent = 3;
 	public static int inputLevelPercent = 3;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
@@ -65,7 +66,7 @@ public class StockNotification {
 	}
 	
 	private static void getAllStockLevelsAndNotify() throws IOException, InterruptedException {
-		String fileName = "MegaCapStocks";
+		String fileName = "niftyStocks";
 		NiftyStocksDailyLevels2.getLevels(fileName);		
 		Thread.sleep(61000);
 		fileName = "niftyStocks";
@@ -90,6 +91,7 @@ public class StockNotification {
 		long starttimefinal = System.currentTimeMillis();
 		System.out.println("Notify " + fileName +" Start time " + new Date(starttimefinal));
 		StringBuffer notificationLevels = new StringBuffer();
+		niftyStocksLevelsPath = path + fileName + ".txt";
 		// TODO Auto-generated method stub
 		try {
 			ArrayList<StockLevels> newShortListedStocks = getNotifications();
@@ -115,7 +117,7 @@ public class StockNotification {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-
+			notifyFile = path + "Notify" + fileName + ".txt";
 			writeToFile(notifyFile, notificationLevels);
 			// writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\notifyNiftyDailyLevels.txt",notificationLevels);
 		}
@@ -134,7 +136,7 @@ public class StockNotification {
 		if(fileName.equalsIgnoreCase("niftyStocksLevels")) {
 			curveLvlMap = getNiftyStocksMonthlyLevels(niftyStocksMonthlyLevelPath);			
 		}else {
-			curveLvlMap = getNiftyStocksMonthlyLevels(niftyStocksMonthlyLevelPath);			
+			curveLvlMap = getNiftyStocksMonthlyLevels(niftyStocksWeeklyLevelPath);			
 		}
 		
 		TreeMap<String, String> monthlyTrendMap = getNiftyTrends(niftyMonthlyTrendListPath);
@@ -569,8 +571,8 @@ public class StockNotification {
 		Double curve1 = curveLowStart + curveSection;
 		Double curve2 = curve1 + curveSection;
 
-		if (monthlyLvlDetail != null && 0 != monthlyLvlDetail.getScore()) {
-			if (monthlyLvlDetail.getScore() == 1) {
+		if (monthlyLvlDetail != null ) {
+			if (1 == monthlyLvlDetail.getScore()) {
 				score = monthlyLvlDetail.getScore();
 			} else {
 
