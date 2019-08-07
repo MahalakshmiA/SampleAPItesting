@@ -47,7 +47,7 @@ public class StockNotification {
 	public static String niftyWeeklylyTrendListPath = path + "niftyStocksTrendweekly.txt";
 	public static String notifyFile = "";
 	public static int notifyPercent = 3;
-	public static int inputLevelPercent = 3;
+	public static int inputLevelPercent = 5;
 	private static DecimalFormat df2 = new DecimalFormat("#.##");
 	private static int i = 0;
 	private static long starttime;
@@ -59,6 +59,7 @@ public class StockNotification {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
+		fileName = "niftyStocksLevels";
 //		getStocksNotification();
 //		getAllStockLevelsAndNotify();
 		getAllNotification();
@@ -563,6 +564,7 @@ public class StockNotification {
 	private static int getCurveScore(MnthlyLvlStockDetail monthlyLvlDetail, Double level, String levelType) {
 
 		int score = 0;
+		if (monthlyLvlDetail != null ) {
 		Double curveLowStart = monthlyLvlDetail.getCurveLowStart();
 		Double curveLowEnd = monthlyLvlDetail.getCurveLowEnd();
 		Double curveHighStart = monthlyLvlDetail.getCurveHighStart();
@@ -571,7 +573,7 @@ public class StockNotification {
 		Double curve1 = curveLowStart + curveSection;
 		Double curve2 = curve1 + curveSection;
 
-		if (monthlyLvlDetail != null ) {
+		
 			if (1 == monthlyLvlDetail.getScore()) {
 				score = monthlyLvlDetail.getScore();
 			} else {
