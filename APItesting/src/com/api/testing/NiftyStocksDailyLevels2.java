@@ -35,6 +35,9 @@ public class NiftyStocksDailyLevels2 {
 	private static Double quote = 0.0;
 	private static String symbolGlobal = "";
 	private static StringBuffer levelsList = new StringBuffer();
+	//premium api key O959V1I2ZMN9KIBK
+	private static String apiKey = "O959V1I2ZMN9KIBK";
+	//trial api key F4ASHUF1BONNF5AQ
 	
 	
 	public static void main(String[] args) throws Exception {
@@ -56,14 +59,14 @@ public class NiftyStocksDailyLevels2 {
 				resetGlobalVariables();	
 				symbolGlobal = symbol;				
 				try {
-					getDailyLevels(symbol,"&apikey=F4ASHUF1BONNF5AQ");
+					getDailyLevels(symbol,"&apikey=O959V1I2ZMN9KIBK");
 				} catch (Exception e) {					
 					e.printStackTrace();
 				}
 				i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
-				if (timetaken < 60000 && (i % 5 == 0)) {
+				if (timetaken < 60000 && (i % 30 == 0)) {
 					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
 					Thread.sleep(61000-timetaken);
 					starttime = System.currentTimeMillis();

@@ -44,7 +44,7 @@ public class StockNotification {
 	public static String niftyStocksMonthlyLevelPath = path + "niftyStocksMonthlyLevels.txt";
 	public static String niftyStocksWeeklyLevelPath = path + "niftyStocksWeeklyLevels.txt";
 	public static String niftyMonthlyTrendListPath = path + "niftyStocksmonthlyTrend.txt";
-	public static String niftyWeeklylyTrendListPath = path + "niftyStocksTrendweekly.txt";
+	public static String niftyWeeklylyTrendListPath = path + "niftyStocksweeklyTrend.txt";
 	public static String notifyFile = "";
 	public static int notifyPercent = 3;
 	public static int inputLevelPercent = 5;
@@ -67,22 +67,23 @@ public class StockNotification {
 	}
 	
 	private static void getAllStockLevelsAndNotify() throws IOException, InterruptedException {
-		String fileName = "niftyStocks";
+//		String fileName = "niftyStocks";
+		String fileName = "MegaCapStocks";
 		NiftyStocksDailyLevels2.getLevels(fileName);		
-		Thread.sleep(61000);
+//		Thread.sleep(61000);
 		fileName = "niftyStocks";
 		StocksHourlyLevels.getLevels(fileName);
-		Thread.sleep(61000);
+//		Thread.sleep(61000);
 		getAllNotification();
 	}
 	
 	private static void getAllNotification() throws IOException, InterruptedException {
 		fileName = "niftyStocksLevels";
 		getStocksNotification();		
-		Thread.sleep(61000);		
+//		Thread.sleep(61000);		
 		fileName = "TwoHourLevels";
 		getStocksNotification();		
-		Thread.sleep(61000);
+//		Thread.sleep(61000);
 		fileName = "Hourlylevels";
 		getStocksNotification();
 		
@@ -175,7 +176,7 @@ public class StockNotification {
 
 					} else {
 
-						quote = getQuote(levels.getStockName(), "&apikey=F4ASHUF1BONNF5AQ");
+						quote = getQuote(levels.getStockName(), "&apikey=O959V1I2ZMN9KIBK");
 						double newLevelPercent;
 						if (levels.getLevelType().equalsIgnoreCase("Support")) {
 							newLevelPercent = ((quote - levels.getOldLevel()) * 100 / quote);
@@ -193,7 +194,7 @@ public class StockNotification {
 						i++;
 						endtime = System.currentTimeMillis();
 						timetaken = endtime - starttime;
-						if (timetaken < 60000 && (i % 5 == 0) && i < listSize) {
+						if (timetaken < 60000 && (i % 30 == 0) && i < listSize) {
 							System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
 							Thread.sleep(61000 - timetaken);
 							starttime = System.currentTimeMillis();
@@ -293,7 +294,7 @@ public class StockNotification {
 		i++;
 		endtime = System.currentTimeMillis();
 		timetaken = endtime - starttime;
-		if (timetaken < 60000 && (i % 5 == 0) ) {
+		if (timetaken < 60000 && (i % 30 == 0) ) {
 			System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000 - timetaken));
 			Thread.sleep(61000 - timetaken);
 			starttime = System.currentTimeMillis();

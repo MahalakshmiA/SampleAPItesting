@@ -17,7 +17,8 @@ public class IdentifyTrend {
 	
 	private static StringBuffer trendList = new StringBuffer();
 	public static String fileName = "niftyStocksLevels";
-	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
+//	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
+	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
 	public static void main(String[] args) throws IOException {
 		
 		long starttimefinal = System.currentTimeMillis();
@@ -30,12 +31,12 @@ public class IdentifyTrend {
 		String timeFrame = "monthly";
 		
 		try {
-			for (String symbol : ReadStocks.getIndexStocksList("niftyStocks")) {
+			for (String symbol : ReadStocks.getIndexStocksList("MegaCapStocks")) {
 				identifyTrend(symbol,timeFrame);
 				i++;
 				endtime = System.currentTimeMillis();
 				timetaken = endtime - starttime;
-				if (timetaken < 60000 && (i % 5 == 0)) {
+				if (timetaken < 60000 && (i % 30 == 0)) {
 					System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
 					Thread.sleep(61000-timetaken);
 					starttime = System.currentTimeMillis();
@@ -59,8 +60,8 @@ public class IdentifyTrend {
 			String interval="&interval="+timeframe;
 			String time_period = "&time_period=50";
 			String series_type="&series_type=close";
-			String urlString = formURL("SMA", symbol,interval,time_period,series_type, "&apikey=F4ASHUF1BONNF5AQ");
-			System.out.println("URL " +urlString);
+			String urlString = formURL("SMA", symbol,interval,time_period,series_type, "&apikey=O959V1I2ZMN9KIBK");
+//			System.out.println("URL " +urlString);
 			Map map =NiftyStocksDailyLevels2.retriveAPIdata(urlString);
 					
 			if (map.containsKey("Note")) {

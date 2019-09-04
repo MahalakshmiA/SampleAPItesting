@@ -80,7 +80,7 @@ public class StocksHourlyLevels {
 			i++;
 			endtime = System.currentTimeMillis();
 			timetaken = endtime - starttime;
-			if (timetaken < 60000 && (i % 5 == 0)) {
+			if (timetaken < 60000 && (i % 30 == 0)) {
 				System.out.println("Time taken & Wait time ..." + timetaken + " & " + (61000-timetaken) );
 				Thread.sleep(61000-timetaken);
 				starttime = System.currentTimeMillis();
