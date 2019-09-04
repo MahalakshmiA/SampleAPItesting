@@ -36,8 +36,8 @@ public class StockNotification {
 //	 public static String fileName = "Hourlylevels";
 //	public static String fileName = "niftyStocksLevels";
 	public static String fileName = "";
-//	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
-	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
+	public static String path = "D:\\Soosai\\APItesting\\config\\file\\";
+//	public static String path = "E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\";
 	
 	public static String niftyStocksLevelsPath = "";
 	public static String rejectedStocksListPath = path + "rejectedStocksList.txt";
@@ -61,8 +61,9 @@ public class StockNotification {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		fileName = "niftyStocksLevels";
 //		getStocksNotification();
-//		getAllStockLevelsAndNotify();
-		getAllNotification();
+		getAllStockLevelsAndNotify();
+//		getAllNotification();
+//		getMultilevelStocks();
 
 	}
 	
@@ -642,6 +643,66 @@ public class StockNotification {
 		}
 		return niftyTrendList;
 
+	}
+	
+	public static ArrayList<StockLevels> getMultilevelStocks() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		ArrayList<StockLevels> shortListedStocks = new ArrayList<>();
+		niftyStocksLevelsPath = path + fileName + ".txt";
+
+		try {
+
+			fr = new FileReader(niftyStocksLevelsPath);
+			br = new BufferedReader(fr);
+			int i = 0;
+			String lastSymbol = "";
+			String lastLevelType = "";
+
+			// read line by line
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				String[] splitLines = line.split("\\|");				
+				// System.out.println(line);
+				if(lastSymbol.equalsIgnoreCase(splitLines[0]) && lastLevelType.equalsIgnoreCase(splitLines[2])) {
+					i++;
+				}else {
+					i=1;
+					lastSymbol = splitLines[0];
+					lastLevelType = splitLines[2];
+				}
+				if(i>=2) {
+					System.out.println(line);
+					StockLevels levels = new StockLevels();
+					levels.setStockName(splitLines[0]);
+					levels.setDate(splitLines[1]);
+					levels.setLevelType(splitLines[2]);
+					levels.setOldLevel(Double.valueOf(splitLines[3]));
+					levels.setOldLevelEnd((Double.valueOf(splitLines[4])));
+					levels.setOldLevelPercent(Double.valueOf(splitLines[5]));
+					if (levels.getOldLevelPercent() < inputLevelPercent) {
+						shortListedStocks.add(levels);
+					}					
+				}
+				
+				
+			}
+
+		} catch (IOException e) {
+			System.err.format("IOException: %s%n", e);
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				System.err.format("IOException: %s%n", ex);
+			}
+		}
+		return shortListedStocks;
 	}
 
 }

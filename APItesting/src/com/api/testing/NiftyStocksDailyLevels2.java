@@ -38,10 +38,11 @@ public class NiftyStocksDailyLevels2 {
 	//premium api key O959V1I2ZMN9KIBK
 	private static String apiKey = "O959V1I2ZMN9KIBK";
 	//trial api key F4ASHUF1BONNF5AQ
+	//URL...   https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=AMARAJABAT.NS&outputsize=full&apikey=O959V1I2ZMN9KIBK
 	
 	
 	public static void main(String[] args) throws Exception {
-		String fileName = "MegaCapStocks";
+		String fileName = "niftyStocks";
 		getLevels(fileName);
 	}
 
@@ -56,6 +57,7 @@ public class NiftyStocksDailyLevels2 {
 		String fnName = "TIME_SERIES_MONTHLY";
 		try {
 			for (String symbol : ReadStocks.getIndexStocksList(fileName)) {
+//			String symbol = "AMARAJABAT.NS";
 				resetGlobalVariables();	
 				symbolGlobal = symbol;				
 				try {
@@ -77,8 +79,8 @@ public class NiftyStocksDailyLevels2 {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
-//			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
-			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+			writeToFile("D:\\Soosai\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
+//			writeToFile("E:\\Soosai\\Stocks\\SampleAPItesting-master\\SampleAPItesting-master\\APItesting\\config\\file\\niftyStocksLevels.txt",levelsList);
 			}
 		
 		endtimefinal = System.currentTimeMillis();
@@ -231,8 +233,9 @@ public class NiftyStocksDailyLevels2 {
 				candleOpen = Double.parseDouble(map2.get("1. open").toString());
 				candleClose = Double.parseDouble(map2.get("4. close").toString());
 				
-				// Avoid candle with all 0 data, consider it as data issue and skip that candle
-				if (candleHigh == 0.0 && candlelow == 0.0 && candleOpen == 0.0 && candleClose == 0.0) {
+				// Avoid candle with Any 0 data, consider it as data issue and skip that candle
+				if (candleHigh == 0.0 || candlelow == 0.0 || candleOpen == 0.0 || candleClose == 0.0) {
+					System.out.println(symbolGlobal +" has 0.0 ...Date to Skip... " + strDate);
 					i++;
 					continue;
 				}
